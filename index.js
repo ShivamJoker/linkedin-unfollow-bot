@@ -11,8 +11,6 @@ const { username, pass } = require("./credentials");
   const page = await browser.newPage();
   await page._client.send("Emulation.clearDeviceMetricsOverride");
 
-  /******** Omitted lines 14 to 36 from previous commit **********/
-  /*** As our login details are already stored in cookie.json ***/
 
   // Reading Cookies
   const cookies = fs.readFileSync('cookies.json', 'utf8'); // we are reading from the cookies henceforth
@@ -32,8 +30,20 @@ const { username, pass } = require("./credentials");
   );
   await likes.click();
 
+  // Getting count of likes
+  const likeCount = await page.evaluate( () => {
+    return parseInt(document.getElementsByClassName("social-details-reactors-tab__icon-container")[1].innerText)
+  })
+            
+    
+  console.log(likeCount);
+
+  var i;
+  for(i = 1; i <= likeCount; i++)
+  {
+
   const profile = await page.waitForXPath(
-    "/html/body/div[4]/div/div/div[2]/div/div/ul/li[2]/a/div"
+    "/html/body/div[4]/div/div/div[2]/div/div/ul/li[1]/a/div"
   );
   await profile.click();
 
@@ -71,4 +81,7 @@ const { username, pass } = require("./credentials");
 
   await unfollow.click();
   await newPage.close();
+
+  }
+  
 })();
