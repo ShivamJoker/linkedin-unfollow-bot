@@ -11,31 +11,14 @@ const { username, pass } = require("./credentials");
   const page = await browser.newPage();
   await page._client.send("Emulation.clearDeviceMetricsOverride");
 
-  await page.goto(
-    "https://www.linkedin.com/uas/login?fromSignIn=true&trk=cold_join_sign_in/"
-  );
+  /******** Omitted lines 14 to 36 from previous commit **********/
+  /*** As our login details are already stored in cookie.json ***/
 
-  // Email for Log-in
-  const email = await page.waitForSelector('input[type="text"]');
-  await email.click();
-  await page.keyboard.type(username, { delay: 30 });
+  // Reading Cookies
+  const cookies = fs.readFileSync('cookies.json', 'utf8'); // we are reading from the cookies henceforth
+  const deserializedCookies = JSON.parse(cookies);
+  await page.setCookie(...deserializedCookies);
 
-  // Password for Log-in
-  const password = await page.waitForSelector('input[type="password"]');
-  await password.click();
-  await page.keyboard.type(pass, { delay: 20 });
-
-  // Signing in
-  await page.keyboard.press("Enter", { delay: 20 });
-  await page.waitForNavigation();
-
-  // Setting Cookies                                          /****************************************/
-  const cookies = await page.cookies();                       /**** We're running this code first *****/
-  const cookieJson = JSON.stringify(cookies);                 /********* To store the cookies *********/
-  // Writing Cookies to JSON                                  /********** into cookies.json ***********/
-  fs.writeFileSync('cookies.json', cookieJson);               /****************************************/
-
-  
   // Navigates to the post
   await page.goto(
     "https://www.linkedin.com/posts/shivamjoker_hey-folks-tap-twice-on-the-image-to-see-the-activity-6766257222373711872-tBiZ"
