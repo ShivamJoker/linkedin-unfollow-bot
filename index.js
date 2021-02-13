@@ -1,4 +1,6 @@
 const puppeteer = require("puppeteer");
+const fs = require("fs");
+const { username, pass } = require("./credentials");
 
 (async () => {
   const browser = await puppeteer.launch({
@@ -8,6 +10,7 @@ const puppeteer = require("puppeteer");
 
   const page = await browser.newPage();
   await page._client.send("Emulation.clearDeviceMetricsOverride");
+
   await page.goto(
     "https://www.linkedin.com/uas/login?fromSignIn=true&trk=cold_join_sign_in/"
   );
@@ -15,17 +18,24 @@ const puppeteer = require("puppeteer");
   // Email for Log-in
   const email = await page.waitForSelector('input[type="text"]');
   await email.click();
-  await page.keyboard.type("non", { delay: 30 });
+  await page.keyboard.type(username, { delay: 30 });
 
   // Password for Log-in
   const password = await page.waitForSelector('input[type="password"]');
   await password.click();
-  await page.keyboard.type("meow", { delay: 20 });
+  await page.keyboard.type(pass, { delay: 20 });
 
   // Signing in
   await page.keyboard.press("Enter", { delay: 20 });
   await page.waitForNavigation();
 
+  // Setting Cookies                                          /****************************************/
+  const cookies = await page.cookies();                       /**** We're running this code first *****/
+  const cookieJson = JSON.stringify(cookies);                 /********* To store the cookies *********/
+  // Writing Cookies to JSON                                  /********** into cookies.json ***********/
+  fs.writeFileSync('cookies.json', cookieJson);               /****************************************/
+
+  
   // Navigates to the post
   await page.goto(
     "https://www.linkedin.com/posts/shivamjoker_hey-folks-tap-twice-on-the-image-to-see-the-activity-6766257222373711872-tBiZ"
@@ -68,12 +78,12 @@ const puppeteer = require("puppeteer");
   const newPage = await newPagePromise;
 
   const moreBtn = await newPage.waitForXPath(
-    "/html/body/div[7]/div[3]/div/div/div/div/div[2]/div/main/div/div[1]/section/div[2]/div[1]/div[2]/div/div/div[2]/div/button"
+    "/html/body/div[8]/div[3]/div/div/div/div/div[2]/div/main/div/div[1]/section/div[2]/div[1]/div[2]/div/div/div[2]/div/button"
   );
 
   await moreBtn.click();
   const unfollow = await newPage.waitForXPath(
-    "/html/body/div[7]/div[3]/div/div/div/div/div[2]/div/main/div/div[1]/section/div[2]/div[1]/div[2]/div/div/div[2]/div/div/div/ul/li[6]/div/div"
+    "/html/body/div[8]/div[3]/div/div/div/div/div[2]/div/main/div/div[1]/section/div[2]/div[1]/div[2]/div/div/div[2]/div/div/div/ul/li[6]"
   );
 
   await unfollow.click();
