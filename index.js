@@ -42,8 +42,10 @@ const { username, pass } = require("./credentials");
   for(i = 1; i <= likeCount; i++)
   {
 
+  // CAUTION : Doesn't work for 2nd, 3rd+ connections as the XPath for Unfollow is nonexistent;
+  // so need newPage.close() everytime XPath is not found so that we can keep unfollowing 1st connections
   const profile = await page.waitForXPath(
-    "/html/body/div[4]/div/div/div[2]/div/div/ul/li[1]/a/div"
+    `/html/body/div[4]/div/div/div[2]/div/div/ul/li[`+`${i}`+`]/a/div`
   );
   await profile.click();
 
