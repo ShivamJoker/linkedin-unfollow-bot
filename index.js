@@ -44,6 +44,21 @@ const { PendingXHR } = require("pending-xhr-puppeteer");
     );
   });
 
+    // scroll the div into view
+    const selector = 'div[role="dialog"]';
+
+    // scroll selector into view
+    await page.evaluate(selector => {
+        const element = document.querySelector(selector);
+        if ( element ) {
+            element.scrollTop = element.offsetHeight;
+            console.error(`Scrolled to selector ${selector}`);
+        } else {
+            console.error(`cannot find selector ${selector}`);
+        }
+    }, selector);
+
+
   for (let i = 1; i <= likeCount; i++) {
     let profile = await page.waitForXPath(
       `/html/body/div[4]/div/div/div[2]/div/div/ul/li[` + `${i}` + `]/a/div`
