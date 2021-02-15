@@ -1,14 +1,18 @@
 const puppeteer = require("puppeteer");
 const fs = require("fs");
-const { username, pass } = require("./credentials");
 
 (async () => {
   const browser = await puppeteer.launch({
     headless: false,
     args: ["--window-size=1920,1080"],
+    ignoreDefaultArgs: ["--enable-automation"]
   });
 
   const page = await browser.newPage();
+  const pages = await browser.pages();
+  if (pages.length > 1) {
+      await pages[0].close();
+  }
   await page._client.send("Emulation.clearDeviceMetricsOverride");
 
 
@@ -82,12 +86,13 @@ const { username, pass } = require("./credentials");
         "/html/body/div[7]/div[3]/div/div/div/div/div[2]/div/main/div/div[1]/section/div[2]/div[1]/div[2]/div/div/div[2]/div/div/div/ul/li[6]"
       );
       
-      if(unfollowAvail === "Unfollow") // Unfollow button found at said XPath
+      if(unfollowAvail === "Unfollow")
       {
         await unfollow.click();
       }
       
     } catch (e) {
+        //await newPage.close();
         console.log("Unfollow button not found");
       }
 
