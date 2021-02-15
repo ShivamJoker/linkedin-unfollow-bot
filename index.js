@@ -44,19 +44,10 @@ const { PendingXHR } = require("pending-xhr-puppeteer");
     );
   });
 
-    // scroll the div into view
-    const selector = 'div[role="dialog"]';
 
-    // scroll selector into view
-    await page.evaluate(selector => {
-        const element = document.querySelector(selector);
-        if ( element ) {
-            element.scrollTop = element.offsetHeight;
-            console.error(`Scrolled to selector ${selector}`);
-        } else {
-            console.error(`cannot find selector ${selector}`);
-        }
-    }, selector);
+    await page.evaluate(_ => {
+  window.scrollBy(0, window.innerHeight);
+});
 
 
   for (let i = 1; i <= likeCount; i++) {
@@ -125,6 +116,5 @@ const { PendingXHR } = require("pending-xhr-puppeteer");
       console.log("Unfollow button not found", e);
     }
 
-    //await profilePage.close();
   }
 })();
