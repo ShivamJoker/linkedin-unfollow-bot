@@ -38,7 +38,7 @@ const { username, pass } = require("./credentials");
 
   for(let i = 1; i <= likeCount; i ++)
   {
-    const profile = await page.waitForXPath(
+    let profile = await page.waitForXPath(
         `/html/body/div[4]/div/div/div[2]/div/div/ul/li[`+`${i}`+`]/a/div`
       );
     await profile.click();
