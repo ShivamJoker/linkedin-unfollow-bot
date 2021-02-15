@@ -1,9 +1,11 @@
 const puppeteer = require("puppeteer");
 const fs = require("fs");
+const { PendingXHR } = require("pending-xhr-puppeteer");
 
 (async () => {
   const browser = await puppeteer.launch({
     headless: false,
+    slowMo: 25,
     args: ["--window-size=1920,1080"],
     ignoreDefaultArgs: ["--enable-automation"]
   });
@@ -15,9 +17,8 @@ const fs = require("fs");
   }
   await page._client.send("Emulation.clearDeviceMetricsOverride");
 
-
   // Reading Cookies
-  const cookies = fs.readFileSync('cookies.json', 'utf8'); // we are reading from the cookies henceforth
+  const cookies = fs.readFileSync("cookies.json", "utf8"); // we are reading from the cookies henceforth
   const deserializedCookies = JSON.parse(cookies);
   await page.setCookie(...deserializedCookies);
 
@@ -35,69 +36,80 @@ const fs = require("fs");
   await likes.click();
 
   // Getting count of likes
-  const likeCount = await page.evaluate( () => {
-    return parseInt(document.getElementsByClassName("social-details-reactors-tab__icon-container")[1].innerText)
-  })
-  console.log(likeCount);
+  const likeCount = await page.evaluate(() => {
+    return parseInt(
+      document.getElementsByClassName(
+        "social-details-reactors-tab__icon-container"
+      )[1].innerText
+    );
+  });
 
-  for(let i = 1; i <= likeCount; i ++)
-  {
+  for (let i = 1; i <= likeCount; i++) {
     let profile = await page.waitForXPath(
-        `/html/body/div[4]/div/div/div[2]/div/div/ul/li[`+`${i}`+`]/a/div`
-      );
+      `/html/body/div[4]/div/div/div[2]/div/div/ul/li[` + `${i}` + `]/a/div`
+    );
+    console.log(i);
     await profile.click();
 
     const getNewPageWhenLoaded = async () => {
       return new Promise((x) =>
         browser.once("targetcreated", async (target) => {
           if (target.type() === "page") {
-            const newPage = await target.page();
-            const newPagePromise = new Promise((y) =>
-              newPage.once("domcontentloaded", () => y(newPage))
+            const profilePage = await target.page();
+            const profilePagePromise = new Promise((y) =>
+              profilePage.once("domcontentloaded", () => y(profilePage))
             );
-            const isPageLoaded = await newPage.evaluate(
+            const isPageLoaded = await profilePage.evaluate(
               () => document.readyState
             );
-            await newPage._client.send("Emulation.clearDeviceMetricsOverride");
+            await profilePage._client.send(
+              "Emulation.clearDeviceMetricsOverride"
+            );
             return isPageLoaded.match("complete|interactive")
-              ? x(newPage)
-              : x(newPagePromise);
+              ? x(profilePage)
+              : x(profilePagePromise);
           }
         })
       );
     };
 
-    const newPagePromise = getNewPageWhenLoaded();
-    const newPage = await newPagePromise;
+    const profilePagePromise = getNewPageWhenLoaded();
+    const profilePage = await profilePagePromise;
+    const pendingXHR = new PendingXHR(profilePage);
 
     // if unfollow button is not found, close the tab
     try {
-      const moreBtn = await newPage.waitForXPath(
-      "/html/body/div[8]/div[3]/div/div/div/div/div[2]/div/main/div/div[1]/section/div[2]/div[1]/div[2]/div/div/div[2]/div/button"
+      const moreBtn = await profilePage.waitForXPath(
+        "/html/body/div[7]/div[3]/div/div/div/div/div[2]/div/main/div/div[1]/section/div[2]/div[1]/div[2]/div/div/div[2]/div/button",
+        { timeout: 3000 }
       );
+
       await moreBtn.click();
 
-      const unfollowIndex = 6;
-      let unfollowAvail = await newPage.evaluate( () => {
-        return document.getElementsByClassName("pv-s-profile-actions__label")[unfollowIndex].innerHTML 
-      })
+      const unfollowTxt = await profilePage.evaluate(() => {
+        return document.getElementsByClassName("pv-s-profile-actions__label")[6]
+          .innerHTML;
+      });
 
-      let unfollow = await newPage.waitForXPath(
-        "/html/body/div[7]/div[3]/div/div/div/div/div[2]/div/main/div/div[1]/section/div[2]/div[1]/div[2]/div/div/div[2]/div/div/div/ul/li[6]"
+      let unfollow = await profilePage.waitForXPath(
+        "/html/body/div[7]/div[3]/div/div/div/div/div[2]/div/main/div/div[1]/section/div[2]/div[1]/div[2]/div/div/div[2]/div/div/div/ul/li[6]",
+        { timeout: 3000 }
       );
-      
-      if(unfollowAvail === "Unfollow")
-      {
+
+      // console.log(unfollow);
+      if (unfollowTxt === "Unfollow") {
         await unfollow.click();
-      }
-      
-    } catch (e) {
-        //await newPage.close();
+        console.log("Unfollowing this person");
+        await pendingXHR.waitForAllXhrFinished();
+      } else {
         console.log("Unfollow button not found");
       }
+      await profilePage.close();
+    } catch (e) {
+      await profilePage.close();
+      console.log("Unfollow button not found", e);
+    }
 
-    await newPage.close();
-
+    //await profilePage.close();
   }
-  
 })();
