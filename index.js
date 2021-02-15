@@ -88,11 +88,10 @@ const { username, pass } = require("./credentials");
       }
       
     } catch (e) {
-        await newPage.close();
         console.log("Unfollow button not found");
       }
 
-    //await newPage.close();
+    await newPage.close();
 
   }
   
