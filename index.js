@@ -34,55 +34,65 @@ const { username, pass } = require("./credentials");
   const likeCount = await page.evaluate( () => {
     return parseInt(document.getElementsByClassName("social-details-reactors-tab__icon-container")[1].innerText)
   })
-            
-    
   console.log(likeCount);
 
-  var i;
-  for(i = 1; i <= likeCount; i++)
+  for(let i = 1; i <= likeCount; i ++)
   {
+    const profile = await page.waitForXPath(
+        `/html/body/div[4]/div/div/div[2]/div/div/ul/li[`+`${i}`+`]/a/div`
+      );
+    await profile.click();
 
-  // CAUTION : Doesn't work for 2nd, 3rd+ connections as the XPath for Unfollow is nonexistent;
-  // so need newPage.close() everytime XPath is not found so that we can keep unfollowing 1st connections
-  const profile = await page.waitForXPath(
-    `/html/body/div[4]/div/div/div[2]/div/div/ul/li[`+`${i}`+`]/a/div`
-  );
-  await profile.click();
+    const getNewPageWhenLoaded = async () => {
+      return new Promise((x) =>
+        browser.once("targetcreated", async (target) => {
+          if (target.type() === "page") {
+            const newPage = await target.page();
+            const newPagePromise = new Promise((y) =>
+              newPage.once("domcontentloaded", () => y(newPage))
+            );
+            const isPageLoaded = await newPage.evaluate(
+              () => document.readyState
+            );
+            await newPage._client.send("Emulation.clearDeviceMetricsOverride");
+            return isPageLoaded.match("complete|interactive")
+              ? x(newPage)
+              : x(newPagePromise);
+          }
+        })
+      );
+    };
 
-  const getNewPageWhenLoaded = async () => {
-    return new Promise((x) =>
-      browser.once("targetcreated", async (target) => {
-        if (target.type() === "page") {
-          const newPage = await target.page();
-          const newPagePromise = new Promise((y) =>
-            newPage.once("domcontentloaded", () => y(newPage))
-          );
-          const isPageLoaded = await newPage.evaluate(
-            () => document.readyState
-          );
-          await newPage._client.send("Emulation.clearDeviceMetricsOverride");
-          return isPageLoaded.match("complete|interactive")
-            ? x(newPage)
-            : x(newPagePromise);
-        }
+    const newPagePromise = getNewPageWhenLoaded();
+    const newPage = await newPagePromise;
+
+    // if unfollow button is not found, close the tab
+    try {
+      const moreBtn = await newPage.waitForXPath(
+      "/html/body/div[8]/div[3]/div/div/div/div/div[2]/div/main/div/div[1]/section/div[2]/div[1]/div[2]/div/div/div[2]/div/button"
+      );
+      await moreBtn.click();
+
+      const unfollowIndex = 6;
+      let unfollowAvail = await newPage.evaluate( () => {
+        return document.getElementsByClassName("pv-s-profile-actions__label")[unfollowIndex].innerHTML 
       })
-    );
-  };
 
-  const newPagePromise = getNewPageWhenLoaded();
-  const newPage = await newPagePromise;
+      let unfollow = await newPage.waitForXPath(
+        "/html/body/div[7]/div[3]/div/div/div/div/div[2]/div/main/div/div[1]/section/div[2]/div[1]/div[2]/div/div/div[2]/div/div/div/ul/li[6]"
+      );
+      
+      if(unfollowAvail === "Unfollow")
+      {
+        await unfollow.click();
+      }
+      
+    } catch (e) {
+        await newPage.close();
+        console.log("Unfollow button not found");
+      }
 
-  const moreBtn = await newPage.waitForXPath(
-    "/html/body/div[8]/div[3]/div/div/div/div/div[2]/div/main/div/div[1]/section/div[2]/div[1]/div[2]/div/div/div[2]/div/button"
-  );
-
-  await moreBtn.click();
-  const unfollow = await newPage.waitForXPath(
-    "/html/body/div[8]/div[3]/div/div/div/div/div[2]/div/main/div/div[1]/section/div[2]/div[1]/div[2]/div/div/div[2]/div/div/div/ul/li[6]"
-  );
-
-  await unfollow.click();
-  await newPage.close();
+    //await newPage.close();
 
   }
   
