@@ -15,17 +15,17 @@ module.exports = {
 
 - <a id="login"></a>Login using Puppeteer into Linkedin as follows (only for first-time login).
 ```
-await page.goto("https://www.linkedin.com/uas/login?fromSignIn=true&trk=cold_join_sign_in/");   // sign-in page
+await page.goto("https://www.linkedin.com/uas/login?fromSignIn=true&trk=cold_join_sign_in/"); 
 
-const email = await page.waitForSelector('input[type="text"]');                 // email
+const email = await page.waitForSelector('input[type="text"]');          // email
 await email.click();
 await page.keyboard.type(username, { delay: 30 });
 
-const password = await page.waitForSelector('input[type="password"]');          // password
+const password = await page.waitForSelector('input[type="password"]');   // password
 await password.click();
 await page.keyboard.type(pass, { delay: 20 });
 
-await page.keyboard.press("Enter", { delay: 20 });                             // press Enter to complete sign-in
+await page.keyboard.press("Enter", { delay: 20 });                       // press Enter to complete sign-in
 await page.waitForNavigation();
 ```  
 
@@ -39,7 +39,7 @@ const { username, pass } = require("./credentials");
 ```                                         
   const cookies = await page.cookies();             // waits for page to load to set cookie
   const cookieJson = JSON.stringify(cookies);       // converting cookie information to JSON
-  fs.writeFileSync('cookies.json', cookieJson);     // writing JSON into cookie.json (newly created by fs)
+  fs.writeFileSync('cookies.json', cookieJson);     // writing JSON into cookie.json (new)
 ```
 
 ## Reading cookies
@@ -48,7 +48,7 @@ const { username, pass } = require("./credentials");
 
 - Read the cookies 
 ```
-const cookies = fs.readFileSync('cookies.json', 'utf8');  // reading the cookies using fs, second login onwards
+const cookies = fs.readFileSync('cookies.json', 'utf8');  // reading the cookies using fs
 const deserializedCookies = JSON.parse(cookies);          // parses the JSON format
 await page.setCookie(...deserializedCookies);             // uses cookie details to login
 ```
