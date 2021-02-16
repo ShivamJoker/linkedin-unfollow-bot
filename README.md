@@ -25,7 +25,7 @@ const password = await page.waitForSelector('input[type="password"]');   // pass
 await password.click();
 await page.keyboard.type(pass, { delay: 20 });
 
-await page.keyboard.press("Enter", { delay: 20 });                       // press Enter to complete sign-in
+await page.keyboard.press("Enter", { delay: 20 });                       // complete sign-in
 await page.waitForNavigation();
 ```  
 
@@ -54,7 +54,13 @@ await page.setCookie(...deserializedCookies);             // uses cookie details
 ```
 
 ## How it works
-
+- The Linkedin post is opened.
+- The button for "See More Reactions" is clicked.
+- Instead of all reactions, only likes are displayed by clicking on likes tab.
+- The first profile is opened in a new tab.
+- More button is clicked to display the dropdown containing Follow/Unfollow button.
+- If Unfollow button is found, it gets clicked.
+- The second tab is closed, and this cycle continues until all the profiles have been unfollowed.
 
 
 
