@@ -1,17 +1,21 @@
 # linkedin-unfollow-bot
 Bot for unfollowing people who liked your post
 
+## Instructions
+1. git clone ```https://github.com/ShivamJoker/linkedin-unfollow-bot/```
+2. ```cd linkedin-unfollow-bot```
+3. ```yarn or npm install```
+
 ## Setting Cookies
 
-#### Cookies can be used to save up on execution time by saving your login details in a JSON format, and reading it on your next logins within expiration date. We will first perform the login with our credentials, then read the cookies and save it locally.
+#### Cookies can be used to save up on execution time by saving your login details in a JSON format, and reading it on your next logins within expiration date.
 
-- Use <a href="https://chrome.google.com/webstore/detail/editthiscookie/fngmhnnpilhplaeedifhccceomclgfbg?hl=en">Edit This Cookie</a> extension for creating new cookie and pasting the cookie in <code>cookie.json</code>.
+- Use <a href="https://chrome.google.com/webstore/detail/editthiscookie/fngmhnnpilhplaeedifhccceomclgfbg?hl=en">Edit This Cookie</a> extension to copy cookies from your LinkedIn page
+- Paste the cookie into <code>cookie.json</code> (create the file)
 
-- Login using Puppeteer into Linkedin (only for first-time login).
+## Running
+```node index.js```
 
-## Reading cookies
-
-- Now that your login details are stored into <code>cookie.json</code>, remove the code for signing in.
 
 ## How it works
 - The Linkedin post is opened.
