@@ -4,6 +4,9 @@ Bot for unfollowing people who liked your post
 ## Watch video
 [![](http://i3.ytimg.com/vi/vTTMQ3unnBc/maxresdefault.jpg)](https://youtu.be/vTTMQ3unnBc)
 
+
+## Note: Please do this on your own risk your account may get banned if LinkedIn detects suspicious activity
+
 ## Instructions
 1. git clone ```https://github.com/ShivamJoker/linkedin-unfollow-bot/```
 2. ```cd linkedin-unfollow-bot```
